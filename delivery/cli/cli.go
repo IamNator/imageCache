@@ -93,6 +93,7 @@ func (d *uploader) worker(workerID int) {
 				request)
 			return
 		}
+
 		//start progress bar
 		bar := pb.New64(stat.Size()).Postfix(" " + filepath.Base(request))
 		bar.Units = pb.U_BYTES

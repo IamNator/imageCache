@@ -3,12 +3,13 @@ package server
 import (
 	"fmt"
 	"io"
+	"log"
 	"net"
 	"os"
 	"path"
 	"path/filepath"
 
-	"github.com/urfave/cli"
+	cli "github.com/urfave/cli/v2"
 
 	proto "imageCache/grpc/gen/proto/imageCache/v1"
 
@@ -101,6 +102,8 @@ func (s *ServerGRPC) Listen() (err error) {
 		err = errors.Wrapf(err, "errored listening for grpc connections")
 		return
 	}
+
+	log.Println("server running @", s.Address)
 
 	return
 }
@@ -202,12 +205,13 @@ func (s *ServerGRPC) Close() {
 		s.server.Stop()
 	}
 
+	log.Println("server @", s.Address, " shutdown")
 	return
 }
 
-func StartServerCommand() cli.Command {
+func StartServerCommand() cli.App {
 
-	return cli.Command{
+	return cli.App{
 		Name:  "serve",
 		Usage: "initiates a gRPC server",
 
@@ -233,6 +237,9 @@ func StartServerCommand() cli.Command {
 			},
 		},
 		Action: func(c *cli.Context) error {
+
+			fmt.Println("TWO =========> ")
+
 			grpcServer, err := NewServerGRPC(ServerGRPCConfig{
 				Address:     c.String("a"),
 				Certificate: c.String("certificate"),
@@ -241,11 +248,13 @@ func StartServerCommand() cli.Command {
 			})
 			if err != nil {
 				fmt.Println("error is creating server")
-
+				fmt.Println("ONE =========> ", err.Error())
 				return err
 			}
 			server := &grpcServer
 			err = server.Listen()
+
+			fmt.Println("TWO =========> ", err.Error())
 
 			defer server.Close()
 			return nil

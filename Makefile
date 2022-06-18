@@ -1,9 +1,6 @@
 
-
-
-build_client:
+client:
 	go build -o UploadClient cmd/cli/main.go
 
-
-build_server:
+server:
 	go build -o grpcUploadServer cmd/server/main.go
