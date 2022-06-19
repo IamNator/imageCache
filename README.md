@@ -6,47 +6,42 @@
 ###### https://docs.buf.build
 ###### A modification of the code from https://github.com/rickslick/grpcUpload
 
-imageCache is CLI tool that uploads files concurrently using grpc. 
+imageCache can be used a CLI tool and a Server.  
+The CLI tool uploads files concurrently using grpc to a server instance of the application.
+
+If the server is spurn in a container  
+It is Ephemeral, meaning, all data once the container shuts down.  
+To prevent this, you can make use of volumes.  
+
+###### by default: all uploaded images are stored in <b>/app/data/files</b> 
 
 ---
 ###### Featues :
 * concurrent multi file upload using grpc with concept of chunking
 * supports tls (both client and sever )
 * Displays progress for each file
+* Exposes endpoints for file downloads
+* Exposes endpoint that return list of files of uploaded
 ---
 ###### How it works
 
 <img width="285" align="left" style="margin-right: 14px; margin-top: 7px;"  alt="Screenshot 2022-06-19 at 13 20 11" src="https://user-images.githubusercontent.com/43158886/174480621-7c487cf7-8eac-46e5-a945-79fc79eb966b.png">
 <br><br><br><br><br>
-<i>Server Exposes A GRPC and REST apis</i>
+<i>Server Exposes GRPC and REST apis</i>
 <br><br><br><br><br><br><br><br><br><br><br><br>
 <br><b></b>
 <i>CLI communicates with the grpc server from a terminal</i>
 <br clear="left"/>
 <br>
+
 ---
 
 ## Usage
-Server : start the server( default destination of files is /data/files) :
-
 
 ### Server
-#### 1.  Build Client as executable
+#### 1.  Build Server
 ```shell
 go build -o server cmd/server/main.go
-```
-
-#### 1.b Build as a docker container
-```shell
-docker build . -t imageCache
-
-output:
-mac@macs-MBP imageCache % docker build . -t imageCache          
-[+] Building 116.0s (8/11)                                                                                                                                                  
- => [internal] load build context                                                                                                                                      2.0s
- => => transferring context: 51.91kB                                                                                                                                   1.6s
- => [builder 1/4] FROM docker.io/library/golang:1.18-alpine@sha256
- ...
 ```
 
 #### 2. Configure .env file 
@@ -77,11 +72,6 @@ output:
 
 ``` 
 
-#### 3.b RUN Server Container (locally)
-```shell
-docker run --env-file .env imageCache
-
-```
 #### 4. List uploaded files
 ```shell
 <server-ip:port>/list
@@ -101,6 +91,9 @@ response:
 e.g:
   localhost:9900/data/files/flower.jpg
 ```
+
+Server : destination of files uploaded is /data/files :
+
 ---
 ## Client
 #### 1.  Build Client
@@ -132,4 +125,28 @@ e.g:
 
 e.g:
   ./client upload -a 127.0.0.1:4000 -f sample.png -f sample.jpeg
+```
+---
+
+
+
+### Working with Container (Docker)  
+
+#### 1.b Build Docker container
+```shell
+docker build . -t imageCache
+
+output:
+mac@macs-MBP imageCache % docker build . -t imageCache          
+[+] Building 116.0s (8/11)                                                                                                                                                  
+ => [internal] load build context                                                                                                                                      2.0s
+ => => transferring context: 51.91kB                                                                                                                                   1.6s
+ => [builder 1/4] FROM docker.io/library/golang:1.18-alpine@sha256
+ ...
+```
+
+#### 3.b Run Container (locally)
+```shell
+docker run --env-file .env imageCache
+
 ```
