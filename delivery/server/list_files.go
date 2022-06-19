@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	"imageCache/data/files"
 	proto "imageCache/grpc/gen/proto/imageCache/v1"
 	"net/http"
 	"path/filepath"
@@ -26,7 +27,7 @@ func (s *ServerGRPC) ListFiles(context.Context, *proto.Null) (*proto.ListFilesRe
 	return &result, nil
 }
 
-func listFilesHandler(ctx *gin.Context) {
+func ListFilesHandler(ctx *gin.Context) {
 	response, er := listAllFiles()
 	if er != nil {
 		ctx.String(http.StatusInternalServerError, er.Error())
@@ -37,5 +38,5 @@ func listFilesHandler(ctx *gin.Context) {
 }
 
 func listAllFiles() ([]string, error) {
-	return filepath.Glob("./data/files/*")
+	return filepath.Glob(files.GetLocation())
 }

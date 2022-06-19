@@ -7,6 +7,7 @@ import (
 	"github.com/rs/zerolog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"imageCache/data/files"
 	proto "imageCache/grpc/gen/proto/imageCache/v1"
 	"log"
 	"net"
@@ -58,7 +59,7 @@ func NewServerGRPC(cfg ServerGRPCConfig) (s ServerGRPC, err error) {
 	}
 
 	s.destDir = cfg.DestDir
-	
+
 	return
 }
 
@@ -72,7 +73,7 @@ func (s *ServerGRPC) Listen() (err error) {
 	listener, err = net.Listen("tcp", s.Address)
 	if err != nil {
 		err = errors.Wrapf(err,
-			"failed to listen on  %d",
+			"failed to listen on  %s",
 			s.Address)
 		return
 	}
@@ -117,7 +118,7 @@ func StartGRPCServer(address string) error {
 
 	grpcServer, err := NewServerGRPC(ServerGRPCConfig{
 		Address: address,
-		DestDir: "./data/files", //c.String("d"),
+		DestDir: files.GetLocation(), //c.String("d"),
 	})
 
 	if err != nil {
@@ -138,11 +139,16 @@ func StartGRPCServer(address string) error {
 	return nil
 }
 
+func SetUpRouter() *gin.Engine {
+	router := gin.Default()
+	return router
+}
+
 func StartRESTServer(address string) error {
 
-	engine := gin.Default()
-	engine.GET("data/files/:fileName", getSingleFileHandler)
-	engine.GET("list", listFilesHandler)
+	engine := SetUpRouter()
+	engine.GET("data/files/:fileName", DownloadFileHandler)
+	engine.GET("list", ListFilesHandler)
 
 	fmt.Println("======> we are running REST @", address)
 

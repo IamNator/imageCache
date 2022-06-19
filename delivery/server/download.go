@@ -3,22 +3,23 @@ package server
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"imageCache/data/files"
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
 )
 
-//getSingleFileHandler
+//DownloadFileHandler
 
-func getSingleFileHandler(ctx *gin.Context) {
+func DownloadFileHandler(ctx *gin.Context) {
 
 	uri := ctx.Param("fileName")
 	if uri == "" {
-		ctx.String(http.StatusInternalServerError, "uri is required")
+		ctx.String(http.StatusInternalServerError, "fileName is required e.g <server addr>/data/files/sample1.png")
 		return
 	}
 
-	ctx.File(filepath.Join("./data/files", uri))
+	ctx.File(filepath.Join(files.GetLocation(), uri))
 
 }
 
