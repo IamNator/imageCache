@@ -6,23 +6,20 @@
 ###### https://docs.buf.build
 ###### A modification of the code from https://github.com/rickslick/grpcUpload
 
+imageCache is CLI tool that uploads files concurrently using grpc. 
 
+---
+###### Featues :
+* concurrent multi file upload using grpc with concept of chunking
+* supports tls (both client and sever )
+* Displays progress for each file
+---
 
-## FROM https://github.com/rickslick/grpcUpload
-
-
-grpcUpload is CLI tool that uploads files concurrently using grpc. Featues :
-
-concurrent multi file upload using grpc with concept of chunking
-supports tls (both client and sever )
-Displays progress for each file
-
-
-Usage
+## Usage
 Server : start the server( default destination of files is /data/files) :
 
 
-## Server
+### Server
 ### 1.  Build Client as executable
 ```shell
 go build -o server cmd/server/main.go
@@ -101,7 +98,7 @@ go build -o client cmd/cli/main.go
 ```
 ### 2. Upload all files in a folder
 ```shell
-./client upload -a <server address> -d <folder to send>
+./client upload -a <server address> -d <folder to upload>
 
 
 e.g:
