@@ -271,6 +271,11 @@ func UploadCommand() cli.Command {
 				Value: "localhost:port",
 				Usage: "server address",
 			},
+			cli.StringFlag{
+				Name:  "d",
+				Value: "",
+				Usage: "base directory",
+			},
 			cli.StringSliceFlag{
 				Name:  "f",
 				Usage: "files to uploaded",
@@ -304,11 +309,9 @@ func UploadCommand() cli.Command {
 			}
 			defer conn.Close()
 
-			//dir := c.String("d")
-
 			files := c.StringSlice("f")
 
-			return UploadFiles(context.Background(), proto.NewRkUploaderServiceClient(conn), files, "", addr)
+			return UploadFiles(context.Background(), proto.NewRkUploaderServiceClient(conn), files, c.String("d"), addr)
 		},
 	}
 }
