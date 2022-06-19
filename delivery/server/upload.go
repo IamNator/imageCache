@@ -60,11 +60,11 @@ func (s *ServerGRPC) UploadFile(stream proto.RkUploaderService_UploadFileServer)
 
 				//check if file ends with jpg or png or jpeg
 				containsJpg := strings.Contains(fname, "jpg")
-				containsJpeg := strings.Contains(fname, "jpeg")
+				containsGif := strings.Contains(fname, "gif")
 				containsPng := strings.Contains(fname, "png")
-				if !containsPng && !containsJpg && !containsJpeg {
+				if !containsPng && !containsJpg && !containsGif {
 					_ = stream.SendAndClose(&proto.UploadResponseType{
-						Message: "file extension must be jpg, jpeg or png",
+						Message: "file extension must be jpg, gif or png",
 						Code:    proto.UploadStatusCode_Invalid,
 					})
 					return nil //errors.New("file extension must be jpg, jpeg or png")
