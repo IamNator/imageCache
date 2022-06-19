@@ -19,7 +19,7 @@ COPY --from=builder /app/server .
 
 COPY data/files  ./data/files
 
+CMD [ "./server" ]
+
 EXPOSE ${GRPC_PORT}
 EXPOSE ${REST_PORT}
-
-CMD [ "./server" ]

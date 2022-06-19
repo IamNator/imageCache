@@ -147,10 +147,12 @@ mac@macs-MBP imageCache % docker build . -t imageCache
 
 #### 3.b Run Container (locally)
 ```shell
-docker run --env-file .env imageCache
+docker run --env-file .env -p 9900:<GRPC_PORT> -p 7700:<REST_PORT>  <image Tag Name>
+
+e.g  docker run --env-file .env -p 9900:9900 -p 7700:7700 server  
 
 output:
-mac@macs-MBP imageCache % docker run --env-file .env server
+mac@macs-MBP imageCache %  docker run --env-file .env -p 9900:9900 -p 7700:7700 server
 [GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
 
 [GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
@@ -160,7 +162,7 @@ mac@macs-MBP imageCache % docker run --env-file .env server
 [GIN-debug] GET    /data/files/:fileName     --> imageCache/delivery/server.DownloadFileHandler (3 handlers)
 [GIN-debug] GET    /list                     --> imageCache/delivery/server.ListFilesHandler (3 handlers)
 ======> we are running REST APIs @ :9900
-=========> We are running GRPC APIs @ 127.0.0.1:4000
+=========> We are running GRPC APIs @ 127.0.0.1:7700
 
 
 ```
