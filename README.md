@@ -31,6 +31,14 @@ go build -o server cmd/server/main.go
 ### 1.b Build as a docker container
 ```shell
 docker build . -t imageCache
+
+output:
+mac@macs-MBP imageCache % docker build . -t imageCache          
+[+] Building 116.0s (8/11)                                                                                                                                                  
+ => [internal] load build context                                                                                                                                      2.0s
+ => => transferring context: 51.91kB                                                                                                                                   1.6s
+ => [builder 1/4] FROM docker.io/library/golang:1.18-alpine@sha256
+ ...
 ```
 
 ### 2. Configure .env file 
@@ -60,6 +68,12 @@ output:
 ======> we are running REST @ :9900
 
 ``` 
+
+### 3.b RUN Server Container (locally)
+```shell
+docker run --env-file .env imageCache
+
+```
 ### 4. List uploaded files
 ```shell
 <server-ip:port>/list

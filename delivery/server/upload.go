@@ -62,6 +62,7 @@ func (s *ServerGRPC) UploadFile(stream proto.RkUploaderService_UploadFileServer)
 				containsJpg := strings.Contains(fname, "jpg")
 				containsGif := strings.Contains(fname, "gif")
 				containsPng := strings.Contains(fname, "png")
+
 				if !containsPng && !containsJpg && !containsGif {
 					_ = stream.SendAndClose(&proto.UploadResponseType{
 						Message: "file extension must be jpg, gif or png",
@@ -93,7 +94,7 @@ func (s *ServerGRPC) UploadFile(stream proto.RkUploaderService_UploadFileServer)
 
 			} else {
 				s.logger.Error().Msg("FileName not provided in first chunk  :" + fileData.Filename)
-				stream.SendAndClose(&proto.UploadResponseType{
+				_ = stream.SendAndClose(&proto.UploadResponseType{
 					Message: "FileName not provided in first chunk:" + fileData.Filename,
 					Code:    proto.UploadStatusCode_Failed,
 				})

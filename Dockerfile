@@ -17,6 +17,8 @@ WORKDIR /app
 
 COPY --from=builder /app/server .
 
+COPY data/files  ./data/files
+
 EXPOSE ${GRPC_PORT}
 EXPOSE ${REST_PORT}
 
