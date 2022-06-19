@@ -30,7 +30,7 @@ type file struct {
 
 func getFileByFileName(fileName string) (*file, error) {
 
-	data, err := ioutil.ReadFile("./data/files/" + fileName)
+	data, err := ioutil.ReadFile(files.GetLocation() + fileName)
 	if err != nil {
 		fmt.Println("File reading error", err)
 		return nil, err
