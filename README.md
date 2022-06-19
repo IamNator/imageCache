@@ -39,6 +39,7 @@ To prevent this, you can make use of volumes.
 
 ## Quick Start
 
+
 #### 1. spin off server
 ```shell
 go run cmd/server/main.go
@@ -51,6 +52,8 @@ go run cmd/client/main.go upload 127.0.0.1:4000 -f ./testdata/sample23.png
 ```
 [more ...](./cmd/cli/README.md)
 
+---
+![Quick Start](https://user-images.githubusercontent.com/43158886/174492721-e00e44ca-5b85-4f1f-81da-1bccbf51b199.gif)
 ---
 
 ### Working with Container (e.g Docker)  
