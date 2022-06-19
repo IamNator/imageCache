@@ -8,7 +8,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	proto "imageCache/grpc/gen/proto/imageCache/v1"
-	"imageCache/storage"
 	"log"
 	"net"
 	"net/http"
@@ -28,8 +27,6 @@ type ServerGRPC struct {
 	key         string
 	destDir     string
 	proto.UnimplementedRkUploaderServiceServer
-
-	store *storage.Storage
 }
 
 type ServerGRPCConfig struct {
@@ -61,13 +58,7 @@ func NewServerGRPC(cfg ServerGRPCConfig) (s ServerGRPC, err error) {
 	}
 
 	s.destDir = cfg.DestDir
-
-	s.store, err = storage.New(s.destDir)
-	if err != nil {
-		s.logger.Error().Err(err).Msg("unable to connect to database")
-		return
-	}
-
+	
 	return
 }
 

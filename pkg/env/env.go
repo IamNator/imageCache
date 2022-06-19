@@ -16,7 +16,6 @@ func Get() Env {
 	if &env == nil {
 		InitEnv()
 	}
-
 	if env.RestAddr == "" {
 		InitEnv()
 	}
@@ -30,7 +29,15 @@ func InitEnv() {
 	godotenv.Load()
 
 	env = Env{
-		GrpcAddr: os.Getenv("GRPC_ADDR"),
-		RestAddr: os.Getenv("REST_ADDR"),
+		GrpcAddr: mustGet("GRPC_ADDR"),
+		RestAddr: mustGet("REST_ADDR"),
 	}
+}
+
+func mustGet(key string) string {
+	v := os.Getenv(key)
+	if v == "" {
+		panic(key + " is required in env")
+	}
+	return v
 }
