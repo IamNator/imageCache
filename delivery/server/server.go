@@ -2,22 +2,17 @@ package server
 
 import (
 	"fmt"
-	"io"
-	"log"
-	"net"
-	"os"
-	"path"
-	"path/filepath"
-
-	cli "github.com/urfave/cli/v2"
-
-	proto "imageCache/grpc/gen/proto/imageCache/v1"
-
+	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
-
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	proto "imageCache/grpc/gen/proto/imageCache/v1"
+	"imageCache/storage"
+	"log"
+	"net"
+	"net/http"
+	"os"
 )
 
 type Server interface {
@@ -32,6 +27,9 @@ type ServerGRPC struct {
 	certificate string
 	key         string
 	destDir     string
+	proto.UnimplementedRkUploaderServiceServer
+
+	store *storage.Storage
 }
 
 type ServerGRPCConfig struct {
@@ -63,6 +61,13 @@ func NewServerGRPC(cfg ServerGRPCConfig) (s ServerGRPC, err error) {
 	}
 
 	s.destDir = cfg.DestDir
+
+	s.store, err = storage.New(s.destDir)
+	if err != nil {
+		s.logger.Error().Err(err).Msg("unable to connect to database")
+		return
+	}
+
 	return
 }
 
@@ -108,98 +113,6 @@ func (s *ServerGRPC) Listen() (err error) {
 	return
 }
 
-//writeToFp takes in a file pointer and byte array and writes the byte array into the file
-//returns error if pointer is nil or error in writing to file
-func writeToFp(fp *os.File, data []byte) error {
-	w := 0
-	n := len(data)
-	for {
-
-		nw, err := fp.Write(data[w:])
-		if err != nil {
-			return err
-		}
-		w += nw
-		if nw >= n {
-			return nil
-		}
-	}
-
-}
-func (s *ServerGRPC) UploadFile(stream proto.RkUploaderService_UploadFileServer) (err error) {
-	firstChunk := true
-	var fp *os.File
-
-	var fileData *proto.UploadRequestType
-
-	var filename string
-	for {
-
-		fileData, err = stream.Recv() //ignoring the data  TO-Do save files received
-
-		if err != nil {
-			if err == io.EOF {
-				break
-			}
-
-			err = errors.Wrapf(err,
-				"failed unexpectadely while reading chunks from stream")
-			return
-		}
-
-		if firstChunk { //first chunk contains file name
-
-			if fileData.Filename != "" { //create file
-
-				fp, err = os.Create(path.Join(s.destDir, filepath.Base(fileData.Filename)))
-
-				if err != nil {
-					s.logger.Error().Msg("Unable to create file  :" + fileData.Filename)
-					stream.SendAndClose(&proto.UploadResponseType{
-						Message: "Unable to create file :" + fileData.Filename,
-						Code:    proto.UploadStatusCode_Failed,
-					})
-					return
-				}
-				defer fp.Close()
-			} else {
-				s.logger.Error().Msg("FileName not provided in first chunk  :" + fileData.Filename)
-				stream.SendAndClose(&proto.UploadResponseType{
-					Message: "FileName not provided in first chunk:" + fileData.Filename,
-					Code:    proto.UploadStatusCode_Failed,
-				})
-				return
-
-			}
-			filename = fileData.Filename
-			firstChunk = false
-		}
-
-		err = writeToFp(fp, fileData.Content)
-		if err != nil {
-			s.logger.Error().Msg("Unable to write chunk of filename :" + fileData.Filename + " " + err.Error())
-			stream.SendAndClose(&proto.UploadResponseType{
-				Message: "Unable to write chunk of filename :" + fileData.Filename,
-				Code:    proto.UploadStatusCode_Failed,
-			})
-			return
-		}
-	}
-
-	//s.logger.Info().Msg("upload received")
-	err = stream.SendAndClose(&proto.UploadResponseType{
-		Message: "Upload received with success",
-		Code:    proto.UploadStatusCode_Ok,
-	})
-	if err != nil {
-		err = errors.Wrapf(err,
-			"failed to send status code")
-		return
-	}
-	fmt.Println("Successfully received and stored the file :" + filename + " in " + s.destDir)
-	return
-}
-
 func (s *ServerGRPC) Close() {
 	if s.server != nil {
 		s.server.Stop()
@@ -209,56 +122,38 @@ func (s *ServerGRPC) Close() {
 	return
 }
 
-func StartServerCommand() cli.App {
+func StartGRPCServer(address string) error {
 
-	return cli.App{
-		Name:  "serve",
-		Usage: "initiates a gRPC server",
+	grpcServer, err := NewServerGRPC(ServerGRPCConfig{
+		Address: address,
+		DestDir: "./data/files", //c.String("d"),
+	})
 
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:  "a",
-				Usage: "Address to listen",
-				Value: "localhost:80",
-			},
+	if err != nil {
+		fmt.Println("error is creating server =========> ", err.Error())
+		return err
+	}
+	server := &grpcServer
 
-			&cli.StringFlag{
-				Name:  "key",
-				Usage: "path to TLS certificate",
-			},
-			&cli.StringFlag{
-				Name:  "certificate",
-				Usage: "path to TLS certificate",
-			},
-			&cli.StringFlag{
-				Name:  "d",
-				Usage: "Destrination directory Default is /tmp",
-				Value: "/tmp",
-			},
-		},
-		Action: func(c *cli.Context) error {
+	fmt.Println("=========> We are running GRPC @", address)
 
-			fmt.Println("TWO =========> ")
-
-			grpcServer, err := NewServerGRPC(ServerGRPCConfig{
-				Address:     c.String("a"),
-				Certificate: c.String("certificate"),
-				Key:         c.String("key"),
-				DestDir:     c.String("d"),
-			})
-			if err != nil {
-				fmt.Println("error is creating server")
-				fmt.Println("ONE =========> ", err.Error())
-				return err
-			}
-			server := &grpcServer
-			err = server.Listen()
-
-			fmt.Println("TWO =========> ", err.Error())
-
-			defer server.Close()
-			return nil
-		},
+	err = server.Listen()
+	if err != nil {
+		fmt.Println("=========> ", err.Error())
 	}
 
+	defer server.Close()
+	fmt.Println("=========> We are stopping")
+	return nil
+}
+
+func StartRESTServer(address string) error {
+
+	engine := gin.Default()
+	engine.GET("data/files/:fileName", getSingleFileHandler)
+	engine.GET("list", listFilesHandler)
+
+	fmt.Println("======> we are running REST @", address)
+
+	return http.ListenAndServe(address, engine)
 }

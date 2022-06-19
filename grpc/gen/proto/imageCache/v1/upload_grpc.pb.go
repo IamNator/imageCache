@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RkUploaderServiceClient interface {
 	UploadFile(ctx context.Context, opts ...grpc.CallOption) (RkUploaderService_UploadFileClient, error)
+	ListFiles(ctx context.Context, in *Null, opts ...grpc.CallOption) (*ListFilesResponse, error)
 }
 
 type rkUploaderServiceClient struct {
@@ -67,11 +68,21 @@ func (x *rkUploaderServiceUploadFileClient) CloseAndRecv() (*UploadResponseType,
 	return m, nil
 }
 
+func (c *rkUploaderServiceClient) ListFiles(ctx context.Context, in *Null, opts ...grpc.CallOption) (*ListFilesResponse, error) {
+	out := new(ListFilesResponse)
+	err := c.cc.Invoke(ctx, "/proto.rkUploaderService/ListFiles", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RkUploaderServiceServer is the server API for RkUploaderService service.
 // All implementations should embed UnimplementedRkUploaderServiceServer
 // for forward compatibility
 type RkUploaderServiceServer interface {
 	UploadFile(RkUploaderService_UploadFileServer) error
+	ListFiles(context.Context, *Null) (*ListFilesResponse, error)
 }
 
 // UnimplementedRkUploaderServiceServer should be embedded to have forward compatible implementations.
@@ -80,6 +91,9 @@ type UnimplementedRkUploaderServiceServer struct {
 
 func (UnimplementedRkUploaderServiceServer) UploadFile(RkUploaderService_UploadFileServer) error {
 	return status.Errorf(codes.Unimplemented, "method UploadFile not implemented")
+}
+func (UnimplementedRkUploaderServiceServer) ListFiles(context.Context, *Null) (*ListFilesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListFiles not implemented")
 }
 
 // UnsafeRkUploaderServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -119,13 +133,36 @@ func (x *rkUploaderServiceUploadFileServer) Recv() (*UploadRequestType, error) {
 	return m, nil
 }
 
+func _RkUploaderService_ListFiles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Null)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RkUploaderServiceServer).ListFiles(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.rkUploaderService/ListFiles",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RkUploaderServiceServer).ListFiles(ctx, req.(*Null))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // RkUploaderService_ServiceDesc is the grpc.ServiceDesc for RkUploaderService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var RkUploaderService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "proto.rkUploaderService",
 	HandlerType: (*RkUploaderServiceServer)(nil),
-	Methods:     []grpc.MethodDesc{},
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListFiles",
+			Handler:    _RkUploaderService_ListFiles_Handler,
+		},
+	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "UploadFile",

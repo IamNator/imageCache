@@ -30,10 +30,11 @@ type uploader struct {
 	pool        *pb.Pool
 	DoneRequest chan string
 	FailRequest chan string
+	addr        string
 }
 
 //NewUploader creates a object of type uploader and creates fixed worker goroutines/threads
-func NewUploader(ctx context.Context, client proto.RkUploaderServiceClient, dir string) *uploader {
+func NewUploader(ctx context.Context, client proto.RkUploaderServiceClient, dir, addr string) *uploader {
 	d := &uploader{
 		ctx:         ctx,
 		client:      client,
@@ -41,6 +42,7 @@ func NewUploader(ctx context.Context, client proto.RkUploaderServiceClient, dir 
 		requests:    make(chan string),
 		DoneRequest: make(chan string),
 		FailRequest: make(chan string),
+		addr:        addr,
 	}
 	for i := 0; i < 5; i++ {
 		d.wg.Add(1)
@@ -140,19 +142,38 @@ func (d *uploader) worker(workerID int) {
 		if err != nil { //retry needed
 
 			fmt.Println("failed to receive upstream status response")
-			bar.FinishPrint("Error uploading file : " + request + " Error :" + err.Error())
+			bar.FinishPrint("Error uploading file : " + request + " Error " + err.Error())
+			bar.Reset(0)
+			d.FailRequest <- request
+			return
+		}
+
+		if status.Code == proto.UploadStatusCode_Exist {
+			bar.FinishPrint("Error uploading file : " + request + " | " + status.Message)
+			bar.Reset(0)
+			d.FailRequest <- request
+			return
+		}
+
+		if status.Code == proto.UploadStatusCode_Invalid {
+			bar.FinishPrint("Error uploading file : " + request + " | " + status.Message)
 			bar.Reset(0)
 			d.FailRequest <- request
 			return
 		}
 
 		if status.Code != proto.UploadStatusCode_Ok { //retry needed
-
-			bar.FinishPrint("Error uploading file : " + request + " :" + status.Message)
+			bar.FinishPrint("Error uploading file : " + request + " | " + status.Message)
 			bar.Reset(0)
 			d.FailRequest <- request
 			return
 		}
+
+		fmt.Println("\nfile uploaded at: ")
+		for _, file := range status.Files {
+			fmt.Printf("{ FileName: \"%s\", Url: \"%s\" }\n", file.GetFileName(), file.GetUri())
+		}
+
 		//fmt.Println("writing done for : " + request + " by " + strconv.Itoa(workerID))
 		d.DoneRequest <- request
 		bar.Finish()
@@ -167,9 +188,9 @@ func (d *uploader) Do(filepath string) {
 //UploadFiles takes in client grpcCLient object and  an optional list of file path or dir name as input.
 //It sends the files  using the grpcClient object to the server in parallel
 //returns error if file transfer is not successful
-func UploadFiles(ctx context.Context, client proto.RkUploaderServiceClient, filepathlist []string, dir string) error {
+func UploadFiles(ctx context.Context, client proto.RkUploaderServiceClient, filepathlist []string, dir, addr string) error {
 
-	d := NewUploader(ctx, client, dir)
+	d := NewUploader(ctx, client, dir, addr)
 	var errorUploadbulk error
 
 	if dir != "" {
@@ -240,6 +261,11 @@ func UploadCommand() cli.Command {
 		Usage: "Uplooads files from server in parallel",
 		Flags: []cli.Flag{
 			cli.StringFlag{
+				Name:  "cmd",
+				Value: "command",
+				Usage: "list",
+			},
+			cli.StringFlag{
 				Name:  "a",
 				Value: "localhost:port",
 				Usage: "server address",
@@ -277,7 +303,7 @@ func UploadCommand() cli.Command {
 			}
 			defer conn.Close()
 
-			return UploadFiles(context.Background(), proto.NewRkUploaderServiceClient(conn), []string{}, c.String("d"))
+			return UploadFiles(context.Background(), proto.NewRkUploaderServiceClient(conn), []string{}, c.String("d"), addr)
 		},
 	}
 }

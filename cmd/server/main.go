@@ -1,26 +1,37 @@
 package main
 
 import (
-	"log"
-	"os"
-	"time"
-
+	"fmt"
+	"github.com/joho/godotenv"
 	"imageCache/delivery/server"
+	"imageCache/pkg/env"
 )
 
 func main() {
-	//app := cli.NewApp()
-	//app.Name = "rk_mft"
-	//app.Usage = "RK multi File Transferer Server"
-	//app.Version = "0.0.1"
-	myApp := server.StartServerCommand()
+	wait := make(chan int)
+	_ = godotenv.Load()
 
-	//app.Setup()
+	go func() {
+		if er := server.StartGRPCServer(env.Get().GrpcAddr); er != nil {
+			fmt.Println("=========>", er.Error())
+			wait <- 1
+			return
+		}
+	}()
 
-	if err := myApp.Run(os.Args); err != nil {
-		log.Println("Stop.", err.Error())
-	}
+	go func() {
+		if er := server.StartRESTServer(env.Get().RestAddr); er != nil {
+			fmt.Println("=========>", er.Error())
+			wait <- 1
+			return
+		}
+	}()
 
-	log.Println("========> Ran this")
-	time.Sleep(time.Hour)
+	//s := make(chan os.Signal, 1)
+	//signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
+	//if n := <-s; n == syscall.SIGINT || n == syscall.SIGTERM || n == syscall.SIGHUP {
+	//	wait <- 1
+	//}
+
+	<-wait
 }

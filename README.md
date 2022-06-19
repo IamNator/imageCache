@@ -22,12 +22,24 @@ Usage
 Server : start the server( default destination of files is /tmp) :
 
 ```shell
-$./grpcUploadServer serve --a <ip:port> -d <destination folder>
-Eg ./UploadClient serve -a localhost:9191 -d /media/
+$./grpcUploadServer
+Eg ./grpcUploadServer
 Client : Upload all files in the specified directory to the server :
 ```
 
 ```shell
-$ ./UploadClient upload  -a <ip:port> -d <folder containing files to upload>   
+$ ./UploadClient upload  -d <folder containing files to upload>   
 Eg  ./UploadClient upload -a localhost:9191 -d /home/
 ```
+
+```shell
+<rest addr>/list 
+to list all file in server
+```
+
+
+* for all files in folder
+
+image-server upload ./source/image-1.jpg ./source/image-2.jpg
+
+check if file exist.- > check if file is png or jpg
