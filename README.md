@@ -6,12 +6,14 @@
 ###### https://docs.buf.build
 ###### A modification of the code from https://github.com/rickslick/grpcUpload
 
+```markdown
 imageCache can be used a CLI tool and a Server.  
 The CLI tool uploads files concurrently using grpc to a server instance of the application.
 
-If the server is spurn in a container  
-It is Ephemeral, meaning, all data once the container shuts down.  
-To prevent this, you can make use of volumes.  
+If the server is spurned in a container  
+It is Ephemeral, meaning, all data is erased once the container shuts down.  
+To prevent this, you can make use of volumes. 
+``` 
 
 ###### by default: all uploaded images are stored in <b>/app/data/files</b> 
 
