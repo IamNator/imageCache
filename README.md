@@ -16,7 +16,8 @@ imageCache is CLI tool that uploads files concurrently using grpc.
 ---
 ###### How it works
 
-![image](https://user-images.githubusercontent.com/43158886/174480305-a1fc5989-f106-4e69-a86f-b08df83daea3.png)
+<img width="285" alt="Screenshot 2022-06-19 at 13 20 11" src="https://user-images.githubusercontent.com/43158886/174480621-7c487cf7-8eac-46e5-a945-79fc79eb966b.png">
+
 
 The cli tools communicates with the server via GRPC, the server also exposes rest api's.
 
