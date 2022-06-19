@@ -20,12 +20,12 @@ Server : start the server( default destination of files is /data/files) :
 
 
 ### Server
-### 1.  Build Client as executable
+#### 1.  Build Client as executable
 ```shell
 go build -o server cmd/server/main.go
 ```
 
-### 1.b Build as a docker container
+#### 1.b Build as a docker container
 ```shell
 docker build . -t imageCache
 
@@ -38,7 +38,7 @@ mac@macs-MBP imageCache % docker build . -t imageCache
  ...
 ```
 
-### 2. Configure .env file 
+#### 2. Configure .env file 
 ```shell
 example: 
 
@@ -47,7 +47,7 @@ REST_ADDR=:9900
 
 ps: this is be in the same dir as go.mod (i.e the root directory of the project)
 ```
-### 3. Run Server
+#### 3. Run Server
 ```shell
 ./server
 
@@ -66,12 +66,12 @@ output:
 
 ``` 
 
-### 3.b RUN Server Container (locally)
+#### 3.b RUN Server Container (locally)
 ```shell
 docker run --env-file .env imageCache
 
 ```
-### 4. List uploaded files
+#### 4. List uploaded files
 ```shell
 <server-ip:port>/list
 
@@ -83,7 +83,7 @@ response:
   "data/files/main.jpg",
   "data/files/sample.jpeg"]
 ```
-### 5. Access a file
+#### 5. Access a file
 ```shell
 <server-ip:port>/data/files/<fileName>
 
@@ -92,11 +92,11 @@ e.g:
 ```
 ---
 ## Client
-### 1.  Build Client
+#### 1.  Build Client
 ```shell
 go build -o client cmd/cli/main.go
 ```
-### 2. Upload all files in a folder
+#### 2. Upload all files in a folder
 ```shell
 ./client upload -a <server address> -d <folder to upload>
 
@@ -105,7 +105,7 @@ e.g:
   ./client upload -a 127.0.0.1:4000 -d ./images/
 ```
 
-### 3. Upload a file
+#### 3. Upload a file
 ```shell
 ./client upload -a <server address> -f <file to upload>
 
@@ -114,7 +114,7 @@ e.g:
   ./client upload -a 127.0.0.1:4000 -f sample.png
 ```
 
-### 4. Upload multiple files
+#### 4. Upload multiple files
 ```shell
 ./client upload -a <server address> -f <file1> -f <file2>
 
