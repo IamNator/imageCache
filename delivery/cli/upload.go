@@ -192,7 +192,7 @@ func (d *uploader) Do(filepath string) {
 func UploadFiles(ctx context.Context, client proto.RkUploaderServiceClient, filepathlist []string, dir, addr string) error {
 
 	d := NewUploader(ctx, client, dir, addr)
-	var errorUploadbulk error
+	var errorUploadBulk error
 
 	if dir != "" {
 
@@ -224,12 +224,12 @@ func UploadFiles(ctx context.Context, client proto.RkUploaderServiceClient, file
 				case req := <-d.FailRequest:
 
 					fmt.Println("failed to  send " + req)
-					errorUploadbulk = errors.Wrapf(errorUploadbulk, " Failed to send %s", req)
+					errorUploadBulk = errors.Wrapf(errorUploadBulk, " Failed to send %s", req)
 
 				}
 			}
 		}
-		fmt.Println("All done ")
+		fmt.Println("All done")
 	} else {
 
 		go func() {
@@ -243,17 +243,17 @@ func UploadFiles(ctx context.Context, client proto.RkUploaderServiceClient, file
 		for i := 0; i < len(filepathlist); i++ {
 			select {
 
-			case <-d.DoneRequest:
-			//	fmt.Println("sucessfully sent " + req)
+			case req := <-d.DoneRequest:
+				fmt.Println("sucessfully sent " + req)
 			case req := <-d.FailRequest:
 				fmt.Println("failed to  send " + req)
-				errorUploadbulk = errors.Wrapf(errorUploadbulk, " Failed to send %s", req)
+				errorUploadBulk = errors.Wrapf(errorUploadBulk, " Failed to send %s", req)
 			}
 		}
 
 	}
 
-	return errorUploadbulk
+	return errorUploadBulk
 }
 
 func UploadCommand() cli.Command {
@@ -278,7 +278,7 @@ func UploadCommand() cli.Command {
 			},
 			cli.StringSliceFlag{
 				Name:  "f",
-				Usage: "files to uploaded",
+				Usage: "files to uploaded e.g -f sample1.png sample2.jpeg",
 				Value: nil,
 			},
 			cli.StringFlag{
@@ -310,6 +310,8 @@ func UploadCommand() cli.Command {
 			defer conn.Close()
 
 			files := c.StringSlice("f")
+
+			fmt.Println("======SLICE======>", files)
 
 			return UploadFiles(context.Background(), proto.NewRkUploaderServiceClient(conn), files, c.String("d"), addr)
 		},
