@@ -309,9 +309,7 @@ func UploadCommand() cli.Command {
 			}
 			defer conn.Close()
 
-			files := c.StringSlice("f")
-
-			return UploadFiles(context.Background(), proto.NewRkUploaderServiceClient(conn), files, c.String("d"), addr)
+			return UploadFiles(context.Background(), proto.NewRkUploaderServiceClient(conn), c.StringSlice("f"), c.String("d"), addr)
 		},
 	}
 }
