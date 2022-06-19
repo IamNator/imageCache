@@ -26,7 +26,8 @@ func Get() Env {
 var env Env
 
 func InitEnv() {
-	godotenv.Load()
+
+	godotenv.Load("../../.env", ".") //for during tests and all
 
 	env = Env{
 		GrpcAddr: mustGet("GRPC_ADDR"),

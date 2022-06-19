@@ -8,6 +8,7 @@ import (
 	"imageCache/data/files"
 	"imageCache/delivery/server"
 	proto "imageCache/grpc/gen/proto/imageCache/v1"
+	"imageCache/pkg/env"
 	"log"
 	"net"
 	"os"
@@ -21,9 +22,10 @@ var lis *bufconn.Listener
 func init() {
 	lis = bufconn.Listen(bufSize)
 	s := grpc.NewServer()
+	env.InitEnv()
 
 	grpcServer, err := server.NewServerGRPC(server.ServerGRPCConfig{
-		Address: "127.0.0.1:4670",
+		Address: env.Get().GrpcAddr,
 		DestDir: files.GetLocation(), //c.String("d"),
 	})
 	if err != nil {
