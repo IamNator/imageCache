@@ -31,7 +31,6 @@ To prevent this, you can make use of volumes.
 <br><br><br><br><br>
 <i>Server Exposes GRPC and REST apis</i>
 <br><br><br><br><br><br><br><br><br><br><br><br>
-<br><b></b>
 <i>CLI communicates with the grpc server from a terminal</i>
 <br clear="left"/>
 <br>
