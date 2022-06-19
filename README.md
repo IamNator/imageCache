@@ -45,8 +45,8 @@ mac@macs-MBP imageCache % docker build . -t imageCache
 ```shell
 example: 
 
-GRPC_ADDR="127.0.0.1:4000"
-REST_ADDR=":9900"
+GRPC_ADDR=127.0.0.1:4000
+REST_ADDR=:9900
 
 ps: this is be in the same dir as go.mod (i.e the root directory of the project)
 ```
