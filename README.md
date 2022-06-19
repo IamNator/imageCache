@@ -38,6 +38,20 @@ To prevent this, you can make use of volumes.
 
 ---
 
+## Quick Start
+
+#### 1. spin off server
+```shell
+go run cmd/server/main.go
+```
+#### 2. upload a file
+```shell
+go run cmd/client/main.go upload 127.0.0.1:4000 -f ./testdata/sample23.png
+```
+
+
+---
+
 ## Usage
 
 ### Server
