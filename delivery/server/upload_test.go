@@ -10,6 +10,7 @@ import (
 	proto "imageCache/grpc/gen/proto/imageCache/v1"
 	"log"
 	"net"
+	"os"
 	"testing"
 )
 
@@ -56,9 +57,10 @@ func TestUploadFile(t *testing.T) {
 		t.Fatalf("SayHello failed: %v", err)
 	}
 
+	fname := "HiFile.png"
 	uploadClient.Send(&proto.UploadRequestType{
 		Content:  []byte("hi how are you"),
-		Filename: "HiFile.png",
+		Filename: fname,
 	})
 
 	resp, err := uploadClient.CloseAndRecv()
@@ -66,6 +68,9 @@ func TestUploadFile(t *testing.T) {
 		t.Fatalf("close failed failed: %v", err)
 	}
 
+	if er := os.Remove(files.GetLocation() + fname); er != nil {
+		t.Fatalf(er.Error())
+	}
+
 	log.Printf("Response: %+v", resp)
-	// Test for output here.
 }
