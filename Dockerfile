@@ -7,7 +7,7 @@ COPY . .
 
 ENV GO111MODULE=on
 
-RUN go build -o cacheImage -ldflags='-s -w' ./cmd/server/main.go
+RUN go build -o server -ldflags='-s -w' ./cmd/server/main.go
 
 # Add Maintainer info
 FROM golang:1.18-alpine
@@ -15,8 +15,9 @@ FROM golang:1.18-alpine
 # creates working directory for program
 WORKDIR /app
 
-COPY --from=builder /app/cacheImage .
+COPY --from=builder /app/server .
 
-EXPOSE ${PORT}
+EXPOSE ${GRPC_PORT}
+EXPOSE ${REST_PORT}
 
-CMD [ "./cacheImage" ]
+CMD [ "./server" ]
