@@ -53,13 +53,17 @@ go run cmd/client/main.go upload 127.0.0.1:4000 -f ./testdata/sample23.png
 
 ---
 
-### Working with Container (Docker)  
+### Working with Container (e.g Docker)  
+<br>
 
-#### 1.b Build Docker container
+#### 1. Build Docker container
 ```shell
-docker build . -t imageCache
+docker build . -t <ImageTagName> imageCache
 
+e.g docker build . -t imageCache
+```
 output:
+```shell
 mac@macs-MBP imageCache % docker build . -t imageCache          
 [+] Building 116.0s (8/11)                                                                                                                                                  
  => [internal] load build context                                                                                                                                      2.0s
@@ -68,13 +72,18 @@ mac@macs-MBP imageCache % docker build . -t imageCache
  ...
 ```
 
-#### 3.b Run Container (locally)
+<br>
+
+#### 2. Run Container (locally)
+
 ```shell
-docker run --env-file .env -p 9900:<GRPC_PORT> -p 7700:<REST_PORT>  <image Tag Name>
+docker run --env-file .env -p 9900:<GRPC_PORT> -p 7700:<REST_PORT>  <ImageTagName>
 
 e.g  docker run --env-file .env -p 9900:9900 -p 7700:7700 server  
+```
 
 output:
+```shell
 mac@macs-MBP imageCache %  docker run --env-file .env -p 9900:9900 -p 7700:7700 server
 [GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
 
