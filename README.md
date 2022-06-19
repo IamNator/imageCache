@@ -19,27 +19,78 @@ Displays progress for each file
 
 
 Usage
-Server : start the server( default destination of files is /tmp) :
+Server : start the server( default destination of files is /data/files) :
 
+
+## Server
+### 1.  Build Client as executable
 ```shell
-$./grpcUploadServer
-Eg ./grpcUploadServer
-Client : Upload all files in the specified directory to the server :
+go build -o server cmd/server/main.go
 ```
 
+### 1.b Build as a docker container
 ```shell
-$ ./UploadClient upload  -d <folder containing files to upload>   
-Eg  ./UploadClient upload -a localhost:9191 -d /home/
+docker build . -t imageCache
 ```
 
+### 2. Configure .env file 
 ```shell
-<rest addr>/list 
-to list all file in server
+example: 
+
+GRPC_ADDR="127.0.0.1:4000"
+REST_ADDR=":9900"
+
+ps: this is be in the same dir as go.mod (i.e the root directory of the project)
+```
+### 3. Run Server
+```shell
+./server
+
+output: 
+
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:   export GIN_MODE=release
+ - using code:  gin.SetMode(gin.ReleaseMode)
+
+=========> We are running GRPC @ 127.0.0.1:4000
+[GIN-debug] GET    /data/files/:fileName     --> imageCache/delivery/server.getSingleFileHandler (3 handlers)
+[GIN-debug] GET    /list                     --> imageCache/delivery/server.listFilesHandler (3 handlers)
+======> we are running REST @ :9900
+
+``` 
+### 4. List uploaded files
+```shell
+<server-ip:port>/list
+
+e.g:
+  localhost:9900/list
+
+response:
+  ["data/files/abc.png",
+  "data/files/main.jpg",
+  "data/files/sample.jpeg"]
+```
+### 5. Access a file
+```shell
+<server-ip:port>/data/files/<fileName>
+
+e.g:
+  localhost:9900/data/files/flower.jpg
+```
+---
+## Client
+### 1.  Build Client
+```shell
+go build -o client cmd/cli/main.go
+```
+### 2. Upload a file
+```shell
+./client upload -a <server address> -d <folder to send>
+
+
+e.g:
+  ./client upload -a 127.0.0.1:4000 -d ./images/
 ```
 
-
-* for all files in folder
-
-image-server upload ./source/image-1.jpg ./source/image-2.jpg
-
-check if file exist.- > check if file is png or jpg
