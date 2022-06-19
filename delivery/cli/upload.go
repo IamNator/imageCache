@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"fmt"
+	"google.golang.org/grpc/credentials/insecure"
 	"io"
 	"io/ioutil"
 	"log"
@@ -293,7 +294,7 @@ func UploadCommand() cli.Command {
 				}
 				options = append(options, grpc.WithTransportCredentials(creds))
 			} else {
-				options = append(options, grpc.WithInsecure())
+				options = append(options, grpc.WithTransportCredentials(insecure.NewCredentials()))
 			}
 			addr := c.String("a")
 
