@@ -278,7 +278,7 @@ func UploadCommand() cli.Command {
 			},
 			cli.StringSliceFlag{
 				Name:  "f",
-				Usage: "files to uploaded e.g -f sample1.png -f sample2.jpeg -f sample3.png",
+				Usage: "files e.g -f sample1.png -f sample2.jpeg -f sample3.png",
 				Value: nil,
 			},
 			cli.StringFlag{

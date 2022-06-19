@@ -127,7 +127,7 @@ func StartGRPCServer(address string) error {
 	}
 	server := &grpcServer
 
-	fmt.Println("=========> We are running GRPC @", address)
+	fmt.Println("=========> We are running GRPC APIs @", address)
 
 	err = server.Listen()
 	if err != nil {
@@ -150,7 +150,7 @@ func StartRESTServer(address string) error {
 	engine.GET("data/files/:fileName", DownloadFileHandler)
 	engine.GET("list", ListFilesHandler)
 
-	fmt.Println("======> we are running REST @", address)
+	fmt.Println("======> we are running REST APIs @", address)
 
 	return http.ListenAndServe(address, engine)
 }
