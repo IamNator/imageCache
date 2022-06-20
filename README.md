@@ -1,6 +1,7 @@
 # imageCache
 
 <img width="351" alt="imageCache" src="https://user-images.githubusercontent.com/43158886/174594291-3ac69d76-f377-474c-8bec-2322924e4052.png">
+<img src="https://github.com/thanos-io/thanos/workflows/CI/badge.svg" alt="CI" style="max-width: 100%;">
 
 ## REFERENCES   
 ###### https://docs.buf.build
